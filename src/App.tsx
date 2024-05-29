@@ -1,22 +1,26 @@
-import { useState } from "react";
 import "./App.css";
+
+import { useState } from "react";
+import Spot from "./Spot";
 import Cell from "./comps/Cell";
-import { SPOT, Spot, WIDTH, createInitialGrid } from "./config";
+import { SPOT, WIDTH } from "./config";
 
 function App() {
   // const [mode, setMode] = useState<"ADMIN" | "PLAYER">("ADMIN");
   const [gameStatus, setGameStatus] = useState<"PLAY" | "GAMEOVER">("PLAY");
-  const [grid, setGrid] = useState<Spot[]>(createInitialGrid());
+  const [grid, setGrid] = useState<Spot[]>(Spot.createInitialGrid());
 
-  const reset = () => setGrid(createInitialGrid());
+  const reset = () => setGrid(Spot.createInitialGrid());
+  // console.log("Reload:", counter);
+  // console.table(grid);
 
-  const createBombAt = (i: number) => {
-    // const newGrid = [...grid];
-    // newGrid[i].value = CELL.BOMB;
-    setGrid((gr) =>
-      gr.map((cell, id) => (id === i ? new Spot(SPOT.BOMB, true) : cell))
-    );
-  };
+  // const createBombAt = (i: number) => {
+  //   // const newGrid = [...grid];
+  //   // newGrid[i].value = CELL.BOMB;
+  //   setGrid((gr) =>
+  //     gr.map((cell, id) => (id === i ? new Spot(SPOT.BOMB, true) : cell))
+  //   );
+  // };
 
   const calcNeighBombs: (i: number) => number = (i) => {
     let count = 0;
@@ -33,30 +37,27 @@ function App() {
     return count;
   };
 
-  const propagateVisibility = async (i: number, tempGrid: Spot[]) => {
-    tempGrid[i].visible = true;
-    tempGrid[i].value = calcNeighBombs(i);
-
-    if (tempGrid[i].value === SPOT.EMPTY) {
-      for (let y = -1; y < 2; y++)
-        for (let x = -1; x < 2; x++) {
-          const offset = i + x + y * WIDTH;
-          if (!grid[offset]) continue;
-          if (
-            Math.floor(offset / WIDTH) !== Math.floor((i + y * WIDTH) / WIDTH)
-          )
-            continue;
-          if (!tempGrid[offset].visible) {
-            propagateVisibility(offset, tempGrid);
-          }
-        }
-    }
-  };
-
   const setVisible = (i: number) => {
-    if (!grid[i].visible) {
-      console.log("Visible on:", i);
+    function propagateVisibility(i: number, tempGrid: Spot[]) {
+      tempGrid[i] = tempGrid[i].toggleVisibility().setValue(calcNeighBombs(i));
 
+      console.log("Spot en:", i, "\n", { ...tempGrid[i] });
+
+      if (tempGrid[i].value === SPOT.EMPTY) {
+        for (let y = -1; y < 2; y++)
+          for (let x = -1; x < 2; x++) {
+            const offset = i + x + y * WIDTH;
+            if (!tempGrid[offset]) continue;
+            if (
+              Math.floor(offset / WIDTH) !== Math.floor((i + y * WIDTH) / WIDTH)
+            )
+              continue;
+            if (!tempGrid[offset].visible)
+              propagateVisibility(offset, tempGrid);
+          }
+      }
+    }
+    if (!grid[i].visible) {
       if (grid[i].value === SPOT.BOMB) {
         setGameStatus("GAMEOVER");
         console.log("Game over! :(");
@@ -64,16 +65,21 @@ function App() {
       }
 
       const tempGrid = Array.from(grid).map((cell, id) =>
-        id === i ? new Spot(cell.value, true) : cell
+        id === i ? cell.toggleVisibility().setValue(calcNeighBombs(i)) : cell
       );
       // Si la celda está vacía, hay que propagar la visibilidad
-      if (tempGrid[i].value === SPOT.EMPTY) {
-        propagateVisibility(i, tempGrid);
-      } else {
-        console.log("No hay propagación");
-      }
+      if (tempGrid[i].value === SPOT.EMPTY) propagateVisibility(i, tempGrid);
+
       setGrid(tempGrid);
     }
+  };
+  const setFlagged = (i: number) => {
+    if (!grid[i].visible) {
+      console.log("Flagged on:", i);
+      setGrid((gr) =>
+        gr.map((cell, id) => (id === i ? cell.toggleFlag() : cell))
+      );
+    } else console.log("No flag :)");
   };
 
   return (
@@ -82,9 +88,7 @@ function App() {
         <button onClick={reset}>Reset</button>
         <button
           onClick={() =>
-            setGrid((gr) =>
-              gr.map((cell) => new Spot(cell.value, !cell.visible))
-            )
+            setGrid((gr) => gr.map((cell) => cell.toggleVisibility()))
           }
         >
           Toggle visilibity
@@ -104,21 +108,17 @@ function App() {
           width: `${50 * WIDTH}px`,
         }}
       >
-        {grid.map((spot, i) => {
-          // const value = cell.visible
-          //   ? cell.value != SPOT.BOMB
-          //     ? calcNeighBombs(i)
-          //     : cell.value
-          //   : 0;
-          return (
+        {grid.map((spot, i) => (
+          <>
             <Cell
               key={i}
-              index={i + 1}
+              // index={i}
               spot={spot}
               update={() => setVisible(i)}
+              flagger={() => setFlagged(i)}
             />
-          );
-        })}
+          </>
+        ))}
       </section>
     </section>
   );
