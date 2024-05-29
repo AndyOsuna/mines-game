@@ -7,17 +7,18 @@ export default class Spot {
     public flagged: boolean = false
   ) {}
 
-  isBomb() {
+  get isBomb() {
     return this.value === SPOT.BOMB;
   }
   toggleVisibility() {
-    return new Spot(this.value, !this.visible);
+    return new Spot(this.value, !this.visible, this.flagged);
   }
   toggleFlag() {
     return new Spot(this.value, this.visible, !this.flagged);
   }
   setValue(n: spotValueType) {
-    return new Spot(n, this.visible, this.flagged);
+    if (!this.isBomb) return new Spot(n, this.visible, this.flagged);
+    return new Spot(this.value, this.visible, this.flagged);
   }
 
   static createInitialGrid: () => Spot[] = () => {
@@ -26,7 +27,7 @@ export default class Spot {
     for (let i = 0; i < nBOMBS; i++) {
       const randomSpot = Math.floor(Math.random() * array.length);
 
-      if (!array[randomSpot].isBomb()) array[randomSpot] = new Spot(SPOT.BOMB);
+      if (!array[randomSpot].isBomb) array[randomSpot] = new Spot(SPOT.BOMB);
       else i--;
     }
     return array;

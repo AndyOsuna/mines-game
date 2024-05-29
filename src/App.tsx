@@ -10,17 +10,9 @@ function App() {
   const [gameStatus, setGameStatus] = useState<"PLAY" | "GAMEOVER">("PLAY");
   const [grid, setGrid] = useState<Spot[]>(Spot.createInitialGrid());
 
-  const reset = () => setGrid(Spot.createInitialGrid());
-  // console.log("Reload:", counter);
-  // console.table(grid);
-
-  // const createBombAt = (i: number) => {
-  //   // const newGrid = [...grid];
-  //   // newGrid[i].value = CELL.BOMB;
-  //   setGrid((gr) =>
-  //     gr.map((cell, id) => (id === i ? new Spot(SPOT.BOMB, true) : cell))
-  //   );
-  // };
+  const reset = () => (
+    setGrid(Spot.createInitialGrid()), setGameStatus("PLAY")
+  );
 
   const calcNeighBombs: (i: number) => number = (i) => {
     let count = 0;
@@ -38,6 +30,7 @@ function App() {
   };
 
   const setVisible = (i: number) => {
+    if (gameStatus === "GAMEOVER") return;
     function propagateVisibility(i: number, tempGrid: Spot[]) {
       tempGrid[i] = tempGrid[i].toggleVisibility().setValue(calcNeighBombs(i));
 
@@ -58,22 +51,22 @@ function App() {
       }
     }
     if (!grid[i].visible) {
-      if (grid[i].value === SPOT.BOMB) {
-        setGameStatus("GAMEOVER");
-        console.log("Game over! :(");
-        return;
-      }
-
       const tempGrid = Array.from(grid).map((cell, id) =>
         id === i ? cell.toggleVisibility().setValue(calcNeighBombs(i)) : cell
       );
-      // Si la celda está vacía, hay que propagar la visibilidad
-      if (tempGrid[i].value === SPOT.EMPTY) propagateVisibility(i, tempGrid);
 
+      if (grid[i].value === SPOT.BOMB) {
+        setGameStatus("GAMEOVER");
+        console.log("Game over! :(");
+      } else {
+        // Si la celda está vacía, hay que propagar la visibilidad
+        if (tempGrid[i].value === SPOT.EMPTY) propagateVisibility(i, tempGrid);
+      }
       setGrid(tempGrid);
     }
   };
   const setFlagged = (i: number) => {
+    if (gameStatus === "GAMEOVER") return;
     if (!grid[i].visible) {
       console.log("Flagged on:", i);
       setGrid((gr) =>

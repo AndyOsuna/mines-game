@@ -2,7 +2,7 @@ import { SPOT } from "../config";
 import Spot from "../Spot";
 
 export default function Cell({
-  spot,
+  spot: s,
   index,
   update,
   flagger,
@@ -12,16 +12,16 @@ export default function Cell({
   update: () => void;
   flagger: () => void;
 }) {
-  const isEmpty = spot.value === SPOT.EMPTY;
-  const isBomb = spot.value === SPOT.BOMB;
-  const hueColor = isBomb && !spot.flagged ? 0 : spot.value * (360 / 9) + 40;
+  const isEmpty = s.value === SPOT.EMPTY;
+  const hueColor =
+    s.visible && s.isBomb ? 0 : Math.max(40, s.value * (360 / 9) + 40);
 
   return (
     <div
       className="cell"
       style={{
         color: `hsl(${hueColor},75%,50%)`,
-        backgroundColor: `${!spot.visible ? "#ddd" : ""}`,
+        backgroundColor: `${!s.visible ? "#ddd" : ""}`,
       }}
       onContextMenu={(e) => e.preventDefault()}
       onClick={update}
@@ -32,11 +32,11 @@ export default function Cell({
       }}
     >
       <span>{index}</span>
-      {!isEmpty && spot.visible
-        ? isBomb
+      {!isEmpty && s.visible
+        ? s.isBomb
           ? "B"
-          : spot.value
-        : spot.flagged && <Flag />}
+          : s.value
+        : s.flagged && <Flag />}
     </div>
   );
 }
