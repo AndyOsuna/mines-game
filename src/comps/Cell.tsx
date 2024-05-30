@@ -1,5 +1,6 @@
-import { SPOT } from "../config";
+import { useEffect, useRef, useState } from "react";
 import Spot from "../Spot";
+import { SPOT } from "../config";
 
 export default function Cell({
   spot: s,
@@ -12,16 +13,36 @@ export default function Cell({
   update: () => void;
   flagger: () => void;
 }) {
+  const [c, sC] = useState(0);
+  const intervalRef = useRef<number>(0);
+
   const isEmpty = s.value === SPOT.EMPTY;
   const hueColor =
     s.visible && s.isBomb ? 0 : Math.max(40, s.value * (360 / 9) + 40);
 
+  const startC = () => {
+    intervalRef.current = setInterval(() => {
+      sC((prevC) => prevC + 1);
+    }, 100);
+  };
+  const finishC = () => {
+    clearInterval(intervalRef.current);
+    sC(0);
+  };
+
+  useEffect(() => {
+    if (c >= 3) {
+      clearInterval(intervalRef.current);
+      sC(0);
+      flagger();
+    }
+  }, [c]);
+
   return (
     <div
-      className="cell"
+      className={`cell ${!s.visible ? "disabled" : ""}`}
       style={{
         color: `hsl(${hueColor},75%,50%)`,
-        backgroundColor: `${!s.visible ? "#ddd" : ""}`,
       }}
       onContextMenu={(e) => e.preventDefault()}
       onClick={update}
@@ -30,6 +51,8 @@ export default function Cell({
         e.preventDefault();
         flagger();
       }}
+      onTouchStart={() => startC()}
+      onTouchEnd={() => finishC()}
     >
       <span>{index}</span>
       {!isEmpty && s.visible

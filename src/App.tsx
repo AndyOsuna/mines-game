@@ -3,14 +3,17 @@ import "./App.css";
 import { useState } from "react";
 import Spot from "./Spot";
 import Cell from "./comps/Cell";
+import Dialog from "./comps/Dialog";
 import { SPOT, WIDTH } from "./config";
 
 function App() {
   // const [mode, setMode] = useState<"ADMIN" | "PLAYER">("ADMIN");
-  const [gameStatus, setGameStatus] = useState<"PLAY" | "GAMEOVER">("PLAY");
+  const [gameStatus, setGameStatus] = useState<"PLAY" | "GAMEOVER" | "VICTORY">(
+    "PLAY"
+  );
   const [grid, setGrid] = useState<Spot[]>(Spot.createInitialGrid());
 
-  const reset = () => (
+  const reload = () => (
     setGrid(Spot.createInitialGrid()), setGameStatus("PLAY")
   );
 
@@ -30,11 +33,9 @@ function App() {
   };
 
   const setVisible = (i: number) => {
-    if (gameStatus === "GAMEOVER") return;
+    if (gameStatus !== "PLAY") return;
     function propagateVisibility(i: number, tempGrid: Spot[]) {
       tempGrid[i] = tempGrid[i].toggleVisibility().setValue(calcNeighBombs(i));
-
-      console.log("Spot en:", i, "\n", { ...tempGrid[i] });
 
       if (tempGrid[i].value === SPOT.EMPTY) {
         for (let y = -1; y < 2; y++)
@@ -50,43 +51,44 @@ function App() {
           }
       }
     }
+    const checkVictory = (tempGrid: Spot[]) =>
+      tempGrid
+        .filter((cell) => cell.value !== SPOT.BOMB)
+        .every((cell) => cell.visible);
+
     if (!grid[i].visible) {
       const tempGrid = Array.from(grid).map((cell, id) =>
         id === i ? cell.toggleVisibility().setValue(calcNeighBombs(i)) : cell
       );
 
-      if (grid[i].value === SPOT.BOMB) {
-        setGameStatus("GAMEOVER");
-        console.log("Game over! :(");
-      } else {
-        // Si la celda está vacía, hay que propagar la visibilidad
-        if (tempGrid[i].value === SPOT.EMPTY) propagateVisibility(i, tempGrid);
-      }
+      if (grid[i].value === SPOT.BOMB) setGameStatus("GAMEOVER");
+      // Si la celda está vacía, hay que propagar la visibilidad
+      else if (tempGrid[i].value === SPOT.EMPTY)
+        propagateVisibility(i, tempGrid);
+
+      if (checkVictory(tempGrid)) setGameStatus("VICTORY");
+      else console.log("Aun no has ganado");
       setGrid(tempGrid);
     }
   };
   const setFlagged = (i: number) => {
-    if (gameStatus === "GAMEOVER") return;
-    if (!grid[i].visible) {
-      console.log("Flagged on:", i);
+    if (gameStatus !== "PLAY") return;
+    if (!grid[i].visible)
       setGrid((gr) =>
         gr.map((cell, id) => (id === i ? cell.toggleFlag() : cell))
       );
-    } else console.log("No flag :)");
   };
 
   return (
-    <section>
+    <main>
+      {gameStatus === "GAMEOVER" && (
+        <Dialog label="Has perdido :(" action={() => reload()} />
+      )}
+      {gameStatus === "VICTORY" && (
+        <Dialog label="Has ganado" action={() => reload()} />
+      )}
       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-        <button onClick={reset}>Reset</button>
-        <button
-          onClick={() =>
-            setGrid((gr) => gr.map((cell) => cell.toggleVisibility()))
-          }
-        >
-          Toggle visilibity
-        </button>
-        {/* <button onClick={()=>createBombAt()}>Generate</button> */}
+        <button onClick={reload}>Reset</button>
         {grid.some((cell) => cell.value === SPOT.BOMB) && (
           <p>
             Cantidad de bombas:{" "}
@@ -113,7 +115,7 @@ function App() {
           </>
         ))}
       </section>
-    </section>
+    </main>
   );
 }
 
