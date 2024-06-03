@@ -34,7 +34,7 @@ export function useMines() {
     },
     [grid]
   );
-
+  /* 
   const calcNeighFlags = (i: number) => {
     let count = 0;
     for (let y = -1; y < 2; y++)
@@ -48,7 +48,7 @@ export function useMines() {
         if (grid[offset].flagged) count++;
       }
     return count;
-  };
+  }; */
 
   const propagateVisibility = async (i: number, tempGrid: Spot[]) => {
     tempGrid[i] = tempGrid[i].reveal().setValue(calcNeighBombs(i, tempGrid));
