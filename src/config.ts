@@ -3,6 +3,8 @@ export const SPOT = {
   BOMB: -1,
 };
 
+export type gameStatusType = "CONFIG" | "PLAY" | "GAMEOVER" | "VICTORY";
+
 export type spotValueType = (typeof SPOT)[keyof typeof SPOT];
 
 export const WIDTH = 15;
