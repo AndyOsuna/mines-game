@@ -6,43 +6,44 @@ export default function Cell({
   spot: s,
   index,
   update,
-  flagger,
+  flagger
 }: {
   spot: Spot;
   index?: number;
   update: () => void;
   flagger: () => void;
 }) {
-  const [c, sC] = useState(0);
-  const intervalRef = useRef<number>(0);
+  const [onTouchCounter, setOnTouchCounter] = useState(0);
+  const intervalRef = useRef(0);
 
   const isEmpty = s.value === SPOT.EMPTY;
   const hueColor =
     s.visible && s.isBomb ? 0 : Math.max(40, s.value * (360 / 9) + 40);
 
+  // Para marcar banderas en pantallas táctiles
   const startC = () => {
     intervalRef.current = setInterval(() => {
-      sC((prevC) => prevC + 1);
+      setOnTouchCounter((prevC) => prevC + 1);
     }, 100);
   };
   const finishC = () => {
     clearInterval(intervalRef.current);
-    sC(0);
+    setOnTouchCounter(0);
   };
 
   useEffect(() => {
-    if (c >= 3) {
+    if (onTouchCounter >= 3) {
       clearInterval(intervalRef.current);
-      sC(0);
+      setOnTouchCounter(0);
       flagger();
     }
-  }, [c]);
+  }, [onTouchCounter, flagger]);
 
   return (
     <div
       className={`cell ${!s.visible ? "disabled" : ""}`}
       style={{
-        color: `hsl(${hueColor},75%,50%)`,
+        color: `hsl(${hueColor},75%,50%)`
       }}
       onContextMenu={(e) => e.preventDefault()}
       onClick={update}
@@ -51,7 +52,7 @@ export default function Cell({
         e.preventDefault();
         flagger();
       }}
-      onTouchStart={() => startC()}
+      onTouchStart={(e) => (e.stopPropagation(), e.preventDefault(), startC())}
       onTouchEnd={() => finishC()}
     >
       <span>{index}</span>
