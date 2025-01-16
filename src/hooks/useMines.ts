@@ -1,12 +1,20 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import Spot from "../Spot";
-import { HEIGHT, SPOT, WIDTH, gameStatusType } from "../config";
+import { HEIGHT, SPOT, WIDTH } from "../config";
+import { MinesContext } from "../contexts/MinesContext";
 import { delay } from "../utils";
+import usePoints from "./usePoints";
 
 export function useMines() {
-  const [grid, setGrid] = useState<Spot[]>(Spot.createInitialGrid());
-  const [gameStatus, setGameStatus] = useState<gameStatusType>("PLAY");
-  const [isFirstMove, setIsFirstMove] = useState(true);
+  const {
+    grid,
+    setGrid,
+    gameStatus,
+    setGameStatus,
+    isFirstMove,
+    setIsFirstMove
+  } = useContext(MinesContext);
+  const { addLost, addVictory } = usePoints();
 
   const reload = () => (
     setGrid(Spot.createInitialGrid()),
@@ -34,7 +42,7 @@ export function useMines() {
     },
     [grid]
   );
-  /* 
+  /*
   const calcNeighFlags = (i: number) => {
     let count = 0;
     for (let y = -1; y < 2; y++)
@@ -52,11 +60,12 @@ export function useMines() {
 
   const propagateVisibility = async (i: number, tempGrid: Spot[]) => {
     tempGrid[i] = tempGrid[i].reveal().setValue(calcNeighBombs(i, tempGrid));
-    // setGrid((g) => g.map((g, id) => (id === i ? tempGrid[i] : g)));
-    // setGrid((g) => ((g[i] = tempGrid[i]), g));
+
+    // Generar nuevo array para generar una nueva referencia de dicho array,
+    // así se produce un rerrenderizado de React.
     setGrid([...tempGrid]);
 
-    if (tempGrid[i].value === SPOT.EMPTY) {
+    if (tempGrid[i].isEmpty) {
       await delay(20);
 
       for (let x = -1; x < 2; x++)
@@ -72,35 +81,40 @@ export function useMines() {
         }
     }
   };
-
+  function moveBomb(i_: number, tempGrid: Spot[]) {
+    const bombIndex = Math.floor(Math.random() * WIDTH * HEIGHT);
+    if (bombIndex === i_) return moveBomb(i_, tempGrid);
+    if (tempGrid[bombIndex].isBomb) return moveBomb(i_, tempGrid);
+    tempGrid[bombIndex] = tempGrid[bombIndex].setValue(SPOT.BOMB);
+    tempGrid[i_] = new Spot(calcNeighBombs(i_), true, tempGrid[i_].flagged);
+  }
+  function checkVictory(tempGrid: Spot[]) {
+    return tempGrid
+      .filter((cell) => !cell.isBomb)
+      .every((cell) => cell.visible);
+  }
   const setVisible = async (i: number) => {
     if (gameStatus !== "PLAY") return;
 
-    function moveBomb(i_: number, tempGrid: Spot[]) {
-      const bombIndex = Math.floor(Math.random() * WIDTH * HEIGHT);
-      if (bombIndex === i_) return moveBomb(i_, tempGrid);
-      if (tempGrid[bombIndex].isBomb) return moveBomb(i_, tempGrid);
-      tempGrid[bombIndex] = tempGrid[bombIndex].setValue(SPOT.BOMB);
-      tempGrid[i_] = new Spot(calcNeighBombs(i_), true, tempGrid[i_].flagged);
-    }
-    const checkVictory = (tempGrid: Spot[]) =>
-      tempGrid
-        .filter((cell) => cell.value !== SPOT.BOMB)
-        .every((cell) => cell.visible);
-
     const tmpGrid = Array.from(grid);
-    if (!tmpGrid[i].visible) {
-      if (grid[i].value === SPOT.BOMB && isFirstMove) {
+    if (!tmpGrid[i].visible && !tmpGrid[i].flagged) {
+      if (grid[i].isBomb && isFirstMove) {
         moveBomb(i, tmpGrid);
         console.log("Ups! una bomba, ahora aqui hay:", tmpGrid[i].value);
       }
-      if (tmpGrid[i].isBomb /*  && !isFirstMove */) setGameStatus("GAMEOVER");
+      if (tmpGrid[i].isBomb && !isFirstMove) {
+        setGameStatus("GAMEOVER");
+        addLost();
+      }
       // Si la celda está vacía, hay que propagar la visibilidad
-      else if (tmpGrid[i].value === SPOT.EMPTY || isFirstMove) {
+      else if (tmpGrid[i].isEmpty || isFirstMove) {
         await propagateVisibility(i, tmpGrid);
         // propagateAnimation(i);
       }
-      if (checkVictory(tmpGrid)) setGameStatus("VICTORY");
+      if (checkVictory(tmpGrid)) {
+        setGameStatus("VICTORY");
+        addVictory();
+      }
     }
     // setGrid(tmpGrid);
     setIsFirstMove(false);
@@ -117,6 +131,7 @@ export function useMines() {
     if (gameStatus === "GAMEOVER") {
       setGrid((gr) => gr.map((cell) => cell.reveal()));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameStatus]);
 
   return { grid, gameStatus, setVisible, setFlagged, reload };

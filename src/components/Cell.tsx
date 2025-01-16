@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import Spot from "../Spot";
-import { SPOT } from "../config";
 
 export default function Cell({
   spot: s,
@@ -16,9 +15,8 @@ export default function Cell({
   const [onTouchCounter, setOnTouchCounter] = useState(0);
   const intervalRef = useRef(0);
 
-  const isEmpty = s.value === SPOT.EMPTY;
   const hueColor =
-    s.visible && s.isBomb ? 0 : Math.max(40, s.value * (360 / 9) + 40);
+    s.visible && s.isBomb ? 40 : Math.max(20, s.value * (360 / 9) + 20);
 
   // Para marcar banderas en pantallas táctiles
   const startC = () => {
@@ -43,7 +41,7 @@ export default function Cell({
     <div
       className={`cell ${!s.visible ? "disabled" : ""}`}
       style={{
-        color: `hsl(${hueColor},75%,50%)`
+        color: `lch(80% 100 ${hueColor})`
       }}
       onContextMenu={(e) => e.preventDefault()}
       onClick={update}
@@ -56,15 +54,22 @@ export default function Cell({
       onTouchEnd={() => finishC()}
     >
       <span>{index}</span>
-      {!isEmpty && s.visible
-        ? s.isBomb
-          ? "B"
-          : s.value
-        : s.flagged && <Flag />}
+      {!s.isEmpty && s.visible ? (
+        s.isBomb ? (
+          <Bomb />
+        ) : (
+          s.value
+        )
+      ) : (
+        s.flagged && <Flag />
+      )}
     </div>
   );
 }
 
+function Bomb() {
+  return "B";
+}
 function Flag() {
   return "F";
 }

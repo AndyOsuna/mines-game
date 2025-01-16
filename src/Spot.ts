@@ -12,6 +12,23 @@ export default class Spot {
     }
     return array;
   };
+  static createTestGrid = () => {
+    let array = new Array(WIDTH * HEIGHT).fill(new Spot()) as Spot[];
+
+    array = array.map((_, i) => {
+      const n = (i % 12) - 1;
+      switch (n) {
+        case -1: // Bomb
+          return new Spot(n, true);
+        case 10: // Flag
+          return new Spot(0, true, true);
+        default: // Numbers
+          return new Spot(n, true);
+      }
+    });
+
+    return array;
+  };
 
   constructor(
     public value: spotValueType = SPOT.EMPTY,
@@ -21,6 +38,9 @@ export default class Spot {
 
   get isBomb() {
     return this.value === SPOT.BOMB;
+  }
+  get isEmpty() {
+    return this.value === SPOT.EMPTY;
   }
   toggleVisibility() {
     return new Spot(this.value, !this.visible, this.flagged);

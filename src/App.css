@@ -3,7 +3,6 @@ main {
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
-  justify-content: center;
   height: 100vh;
 }
 
@@ -14,9 +13,10 @@ main {
   display: inline-block;
   font-size: 3em;
   font-weight: bold;
-  height: 50px;
   width: 50px;
-  line-height: 1em;
+  aspect-ratio: 1;
+  /* width: 50px; */
+  line-height: 50px;
   text-align: center;
   border: 1px #333 solid;
 }
