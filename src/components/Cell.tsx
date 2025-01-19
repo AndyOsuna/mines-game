@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import Spot from "../Spot";
+import Spot from "../entities/spot-entity";
 
 export default function Cell({
   spot: s,

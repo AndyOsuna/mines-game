@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { SPOT } from "../config";
-import Spot from "../Spot";
 import GridEntity from "./grid-entity";
+import Spot from "./spot-entity";
 
 const DEMO_WIDTH = 3,
   DEMO_HEIGHT = 2;

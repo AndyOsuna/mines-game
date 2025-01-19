@@ -1,4 +1,4 @@
-import { HEIGHT, SPOT, WIDTH, nBOMBS, spotValueType } from "./config";
+import { HEIGHT, SPOT, WIDTH, nBOMBS, spotValueType } from "../config";
 
 export default class Spot {
   static createInitialGrid = () => {

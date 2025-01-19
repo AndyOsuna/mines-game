@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect } from "react";
-import Spot from "../Spot";
 import { HEIGHT, SPOT, WIDTH } from "../config";
 import { MinesContext } from "../contexts/MinesContext";
+import Spot from "../entities/spot-entity";
 import { delay } from "../utils";
 import usePoints from "./usePoints";
 

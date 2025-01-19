@@ -1,5 +1,5 @@
-import Spot from "../Spot";
 import { HEIGHT, SPOT, spotValueType, WIDTH } from "../config";
+import Spot from "./spot-entity";
 
 export default class GridEntity {
   public _grid: Spot[];

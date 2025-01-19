@@ -1,6 +1,6 @@
 import { createContext, useState } from "react";
-import Spot from "../Spot";
 import { gameStatusType } from "../config";
+import Spot from "../entities/spot-entity";
 
 interface ContextType {
   grid: Spot[];
