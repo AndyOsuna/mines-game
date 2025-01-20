@@ -8,9 +8,10 @@ export default class GridEntity {
     readonly width: number = WIDTH,
     readonly height: number = HEIGHT
   ) {
-    this._grid = Spot.createTestGrid();
+    this._grid = [];
   }
   public setGrid(grid: Spot[]) {
+    this.validateGridSize(grid);
     this._grid = grid;
   }
 
@@ -54,10 +55,6 @@ export default class GridEntity {
   }
 
   public printGrid() {
-    if (this._grid.length != this.height * this.width)
-      throw new Error(
-        `Invalid grid size: ${this._grid.length} vs ${this.height * this.width}`
-      );
     let line = "";
     for (const spotIdx in this._grid) {
       const val = this.format(this._grid[spotIdx].value);
@@ -67,6 +64,13 @@ export default class GridEntity {
         line = "";
       }
     }
+  }
+
+  private validateGridSize(grid: Spot[]) {
+    if (grid.length != this.height * this.width)
+      throw new Error(
+        `Invalid grid size: ${grid.length} vs ${this.height * this.width}`
+      );
   }
 
   private format(spot: spotValueType) {
