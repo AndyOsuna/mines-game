@@ -1,3 +1,18 @@
+.nav {
+  width: 100%;
+  background-color: #222;
+  padding: 8px 16px;
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 20px;
+  justify-content: center;
+}
+.nav .link {
+  background-color: #333;
+  padding: 4px 12px;
+  border-radius: 4px;
+}
+
 main {
   position: relative;
   display: flex;

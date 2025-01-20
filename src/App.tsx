@@ -4,15 +4,35 @@
 2. TODO: Multijugador Cooperativo: tener un tablero compartido.
 */
 
+import { Link, Route, Switch } from "wouter";
 import "./App.css";
 import Grid from "./components/Grid";
+import Grid2 from "./components/Grid2";
 import Header from "./components/Header";
 
 function App() {
   return (
     <main>
-      <Header />
-      <Grid />
+      <nav className="nav">
+        <Link className="link" href="/">
+          Home
+        </Link>
+        <Link className="link" href="/new">
+          New
+        </Link>
+      </nav>
+      <Switch>
+        <Route
+          path="/"
+          component={() => (
+            <>
+              <Header />
+              <Grid />
+            </>
+          )}
+        />
+        <Route path="/new" component={() => <Grid2 />} />
+      </Switch>
     </main>
   );
 }
