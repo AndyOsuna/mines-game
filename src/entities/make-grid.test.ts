@@ -12,7 +12,7 @@ it("should have bombs", () => {
     .build();
 
   const currentBombs = grid._grid.reduce(
-    (acc, spot) => (spot.isBomb ? ++acc : acc),
+    (acc, spot) => (spot.isBomb() ? ++acc : acc),
     0
   );
   expect(currentBombs).toBe(nbombs);

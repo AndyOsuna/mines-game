@@ -8,12 +8,18 @@ export default function Header() {
 
   return (
     <>
-      {gameStatus === "GAMEOVER" && <Dialog label="Has perdido :(" action={() => reload()} />}
-      {gameStatus === "VICTORY" && <Dialog label="Has ganado!!" action={() => reload()} />}
+      {gameStatus === "GAMEOVER" && (
+        <Dialog label="Has perdido :(" action={() => reload()} />
+      )}
+      {gameStatus === "VICTORY" && (
+        <Dialog label="Has ganado!!" action={() => reload()} />
+      )}
       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
         <button onClick={reload}>Reset</button>
-        {grid.some((cell) => cell.isBomb) && (
-          <p>Cantidad de bombas: {grid.filter((cell) => cell.isBomb).length}</p>
+        {grid.some((cell) => cell.isBomb()) && (
+          <p>
+            Cantidad de bombas: {grid.filter((cell) => cell.isBomb()).length}
+          </p>
         )}
         <p>ganados: {victory}</p>
         <p>perdidos: {lost}</p>

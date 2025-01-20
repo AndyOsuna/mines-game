@@ -32,7 +32,7 @@ export default class MakeGrid {
   private createBombs(grid: GridEntity) {
     for (let i = 0; i < this.bombs; i++) {
       const indexBomb = Math.floor(Math.random() * grid._grid.length);
-      if (!grid._grid[indexBomb].isBomb)
+      if (!grid._grid[indexBomb].isBomb())
         grid._grid[indexBomb] = new Spot(SPOT.BOMB);
       else i--;
     }

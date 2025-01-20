@@ -36,7 +36,7 @@ export function useMines() {
           )
             continue;
 
-          if (tempGrid[offset].isBomb) count++;
+          if (tempGrid[offset].isBomb()) count++;
         }
       return count;
     },
@@ -65,7 +65,7 @@ export function useMines() {
     // así se produce un rerrenderizado de React.
     setGrid([...tempGrid]);
 
-    if (tempGrid[i].isEmpty) {
+    if (tempGrid[i].isEmpty()) {
       await delay(20);
 
       for (let x = -1; x < 2; x++)
@@ -84,13 +84,13 @@ export function useMines() {
   function moveBomb(i_: number, tempGrid: Spot[]) {
     const bombIndex = Math.floor(Math.random() * WIDTH * HEIGHT);
     if (bombIndex === i_) return moveBomb(i_, tempGrid);
-    if (tempGrid[bombIndex].isBomb) return moveBomb(i_, tempGrid);
+    if (tempGrid[bombIndex].isBomb()) return moveBomb(i_, tempGrid);
     tempGrid[bombIndex] = tempGrid[bombIndex].setValue(SPOT.BOMB);
     tempGrid[i_] = new Spot(calcNeighBombs(i_), true, tempGrid[i_].flagged);
   }
   function checkVictory(tempGrid: Spot[]) {
     return tempGrid
-      .filter((cell) => !cell.isBomb)
+      .filter((cell) => !cell.isBomb())
       .every((cell) => cell.visible);
   }
   const setVisible = async (i: number) => {
@@ -98,16 +98,16 @@ export function useMines() {
 
     const tmpGrid = Array.from(grid);
     if (!tmpGrid[i].visible && !tmpGrid[i].flagged) {
-      if (grid[i].isBomb && isFirstMove) {
+      if (grid[i].isBomb() && isFirstMove) {
         moveBomb(i, tmpGrid);
         console.log("Ups! una bomba, ahora aqui hay:", tmpGrid[i].value);
       }
-      if (tmpGrid[i].isBomb && !isFirstMove) {
+      if (tmpGrid[i].isBomb() && !isFirstMove) {
         setGameStatus("GAMEOVER");
         addLost();
       }
       // Si la celda está vacía, hay que propagar la visibilidad
-      else if (tmpGrid[i].isEmpty || isFirstMove) {
+      else if (tmpGrid[i].isEmpty() || isFirstMove) {
         await propagateVisibility(i, tmpGrid);
         // propagateAnimation(i);
       }

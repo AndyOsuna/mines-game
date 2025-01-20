@@ -42,8 +42,8 @@ describe("Grid entity", () => {
 
   it("when propagate from empty spot, should reveals other values spots", () => {
     grid.propagateVisibility(2);
-    expect(grid._grid[2].isEmpty).toBe(true);
-    expect(grid._grid[5].isEmpty).toBe(true);
+    expect(grid._grid[2].isEmpty()).toBe(true);
+    expect(grid._grid[5].isEmpty()).toBe(true);
     expect(grid._grid[1].value).toBe(2);
     expect(grid._grid[4].value).toBe(2);
   });

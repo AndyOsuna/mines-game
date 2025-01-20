@@ -16,7 +16,7 @@ export default function Cell({
   const intervalRef = useRef(0);
 
   const hueColor =
-    s.visible && s.isBomb ? 40 : Math.max(20, s.value * (360 / 9) + 20);
+    s.visible && s.isBomb() ? 40 : Math.max(20, s.value * (360 / 9) + 20);
 
   // Para marcar banderas en pantallas táctiles
   const startC = () => {
@@ -54,8 +54,8 @@ export default function Cell({
       onTouchEnd={() => finishC()}
     >
       <span>{index}</span>
-      {!s.isEmpty && s.visible ? (
-        s.isBomb ? (
+      {!s.isEmpty() && s.visible ? (
+        s.isBomb() ? (
           <Bomb />
         ) : (
           s.value

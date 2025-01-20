@@ -8,7 +8,7 @@ export default class Spot {
     for (let i = 0; i < nBOMBS; i++) {
       const randomSpot = Math.floor(Math.random() * array.length);
 
-      if (!array[randomSpot].isBomb) array[randomSpot] = new Spot(SPOT.BOMB);
+      if (!array[randomSpot].isBomb()) array[randomSpot] = new Spot(SPOT.BOMB);
       else i--;
     }
     return array;
@@ -37,10 +37,10 @@ export default class Spot {
     public flagged: boolean = false
   ) {}
 
-  get isBomb() {
+  isBomb() {
     return this.value === SPOT.BOMB;
   }
-  get isEmpty() {
+  isEmpty() {
     return this.value === SPOT.EMPTY;
   }
   toggleVisibility() {
@@ -53,7 +53,7 @@ export default class Spot {
     return new Spot(this.value, this.visible, !this.flagged);
   }
   setValue(n: spotValueType) {
-    if (!this.isBomb) return new Spot(n, this.visible, this.flagged);
+    if (!this.isBomb()) return new Spot(n, this.visible, this.flagged);
     return new Spot(this.value, this.visible, this.flagged);
   }
 

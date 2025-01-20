@@ -17,7 +17,7 @@ export default class GridEntity {
 
   public calcNeighBombs(i: number): number {
     let count = 0;
-    this.mapArroundPos(i, (offset) => this._grid[offset].isBomb && count++);
+    this.mapArroundPos(i, (offset) => this._grid[offset].isBomb() && count++);
     return count;
   }
 
@@ -25,7 +25,7 @@ export default class GridEntity {
     let currentSpot = this._grid[i];
     currentSpot = currentSpot.reveal().setValue(this.calcNeighBombs(i));
     this._grid[i] = currentSpot;
-    if (currentSpot.isEmpty) {
+    if (currentSpot.isEmpty()) {
       this.mapArroundPos(
         i,
         (offset) =>
