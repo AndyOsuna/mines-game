@@ -46,6 +46,11 @@ export default class GridEntity {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public toRaw(): any[] {
+    return this._grid.map((s) => s.toRaw());
+  }
+
   /**
    * Recorre el área alrededor de `pos`, un área 3x3.
    */

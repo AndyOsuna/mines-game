@@ -1,4 +1,5 @@
 import { HEIGHT, SPOT, WIDTH, nBOMBS, spotValueType } from "../config";
+import { type Properties } from "../utils";
 
 export default class Spot {
   static createInitialGrid = () => {
@@ -54,5 +55,13 @@ export default class Spot {
   setValue(n: spotValueType) {
     if (!this.isBomb) return new Spot(n, this.visible, this.flagged);
     return new Spot(this.value, this.visible, this.flagged);
+  }
+
+  public toRaw(): Properties<Spot> {
+    return {
+      value: this.value,
+      visible: this.visible,
+      flagged: this.flagged
+    };
   }
 }

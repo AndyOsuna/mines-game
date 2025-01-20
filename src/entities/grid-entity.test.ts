@@ -47,4 +47,23 @@ describe("Grid entity", () => {
     expect(grid._grid[1].value).toBe(2);
     expect(grid._grid[4].value).toBe(2);
   });
+
+  describe("Serialize raw grid", () => {
+    it("should return an array", () => {
+      grid = new MakeGrid().setSize(DEMO_WIDTH, DEMO_HEIGHT).build();
+      const result = grid.toRaw();
+      expect(Array.isArray(result)).toBeTruthy();
+    });
+
+    it("should return an array of raw spots", () => {
+      grid = new MakeGrid().setSize(DEMO_WIDTH, DEMO_HEIGHT).build();
+      const result = grid.toRaw();
+      const expectedGrid = {
+        value: 0,
+        visible: false,
+        flagged: false
+      };
+      expect(result).toContainEqual(expectedGrid);
+    });
+  });
 });
