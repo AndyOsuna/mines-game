@@ -17,19 +17,7 @@ export default class GridEntity {
 
   public calcNeighBombs(i: number): number {
     let count = 0;
-    for (let y = -1; y < 2; y++)
-      for (let x = -1; x < 2; x++) {
-        const offset = i + x + y * this.width;
-        // Si por sumarle x, se va del borde al otro y CAMBIA de fila, se saltea el conteo.
-        if (!this._grid[offset]) continue;
-        if (
-          Math.floor(offset / this.width) !==
-          Math.floor((i + y * this.width) / this.width)
-        )
-          continue;
-
-        if (this._grid[offset].isBomb) count++;
-      }
+    this.mapArroundPos(i, (offset) => this._grid[offset].isBomb && count++);
     return count;
   }
 
@@ -37,20 +25,12 @@ export default class GridEntity {
     let currentSpot = this._grid[i];
     currentSpot = currentSpot.reveal().setValue(this.calcNeighBombs(i));
     this._grid[i] = currentSpot;
-
     if (currentSpot.isEmpty) {
-      for (let x = -1; x < 2; x++)
-        for (let y = -1; y < 2; y++) {
-          // if (Math.abs(x) + Math.abs(y) !== 1) continue;
-          const offset = i + x + y * this.width;
-          if (!this._grid[offset] || this._grid[offset].visible) continue;
-          if (
-            Math.floor(offset / this.width) !==
-            Math.floor((i + y * this.width) / this.width)
-          )
-            continue;
-          this.propagateVisibility(offset);
-        }
+      this.mapArroundPos(
+        i,
+        (offset) =>
+          !this._grid[offset].visible && this.propagateVisibility(offset)
+      );
     }
   }
 
@@ -59,11 +39,29 @@ export default class GridEntity {
     for (const spotIdx in this._grid) {
       const val = this.format(this._grid[spotIdx].value);
       line += val;
-      if (Number(spotIdx) % WIDTH === 0) {
+      if (Number(spotIdx) + (1 % this.width) === 0) {
         console.log(line);
         line = "";
       }
     }
+  }
+
+  /**
+   * Recorre el área alrededor de `pos`, un área 3x3.
+   */
+  private mapArroundPos(pos: number, fn: (offsetPos: number) => void): void {
+    for (let x = -1; x < 2; x++)
+      for (let y = -1; y < 2; y++) {
+        // if (Math.abs(x) + Math.abs(y) !== 1) continue;
+        const offsetPos = pos + x + y * this.width;
+        if (!this._grid[offsetPos]) continue;
+        if (
+          Math.floor(offsetPos / this.width) !==
+          Math.floor((pos + y * this.width) / this.width)
+        )
+          continue;
+        fn(offsetPos);
+      }
   }
 
   private validateGridSize(grid: Spot[]) {
@@ -74,8 +72,8 @@ export default class GridEntity {
   }
 
   private format(spot: spotValueType) {
-    let result: number | string = spot;
-    switch (result) {
+    let result = "";
+    switch (spot) {
       case SPOT.BOMB:
         result = "B";
         break;
