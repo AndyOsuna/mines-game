@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { SPOT } from "../config";
 import GridEntity from "./grid-entity";
+import MakeGrid from "./make-grid";
 import Spot from "./spot-entity";
 
 const DEMO_WIDTH = 3,
@@ -21,7 +22,7 @@ describe("Grid entity", () => {
   let grid: GridEntity;
 
   beforeEach(() => {
-    grid = new GridEntity(DEMO_WIDTH, DEMO_HEIGHT);
+    grid = new MakeGrid().setSize(DEMO_WIDTH, DEMO_HEIGHT).build();
     grid.setGrid(demoGrid);
   });
 
