@@ -1,16 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { SPOT } from "../config";
-import Spot, { RawSpot } from "../entities/spot-entity";
-import { Bomb } from "./Bomb";
-import { Flag } from "./Flag";
+import { type RawSpot } from "../entities/spot-entity";
+import { ValueSpot } from "./Cell";
 
-export default function Cell({
-  spot: s,
+export default function Cell2({
+  spot,
   index,
   update,
   flagger
 }: {
-  spot: Spot;
+  spot: RawSpot;
   index?: number;
   update: () => void;
   flagger: () => void;
@@ -19,7 +18,9 @@ export default function Cell({
   const intervalRef = useRef(0);
 
   const hueColor =
-    s.visible && s.isBomb() ? 40 : Math.max(20, s.value * (360 / 9) + 20);
+    spot.visible && spot.value == SPOT.BOMB
+      ? 40
+      : Math.max(20, spot.value * (360 / 9) + 20);
 
   // Para marcar banderas en pantallas táctiles
   const startC = () => {
@@ -42,7 +43,7 @@ export default function Cell({
 
   return (
     <div
-      className={`cell${!s.visible ? " disabled" : ""}`}
+      className={`cell ${!spot.visible ? "disabled" : ""}`}
       style={{
         color: `lch(80% 100 ${hueColor})`
       }}
@@ -56,17 +57,8 @@ export default function Cell({
       onTouchStart={(e) => (e.stopPropagation(), e.preventDefault(), startC())}
       onTouchEnd={() => finishC()}
     >
-      {index && <span>{index}</span>}
-      <ValueSpot spot={s} />
+      <span>{index}</span>
+      <ValueSpot spot={spot} />
     </div>
   );
 }
-
-export const ValueSpot = ({ spot }: { spot: RawSpot }): React.ReactNode => {
-  if (!spot.visible || spot.value === SPOT.EMPTY) {
-    if (spot.flagged) return <Flag />;
-    return null;
-  }
-  if (spot.value === SPOT.BOMB) return <Bomb />;
-  return spot.value;
-};

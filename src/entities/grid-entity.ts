@@ -1,5 +1,5 @@
 import { HEIGHT, SPOT, spotValueType, WIDTH } from "../config";
-import Spot from "./spot-entity";
+import Spot, { RawSpot } from "./spot-entity";
 
 export default class GridEntity {
   public _grid: Spot[];
@@ -34,20 +34,23 @@ export default class GridEntity {
     }
   }
 
+  public toggleFlag(i: number): void {
+    this._grid[i] = this._grid[i].toggleFlag();
+  }
+
   public printGrid() {
     let line = "";
     for (const spotIdx in this._grid) {
       const val = this.format(this._grid[spotIdx].value);
       line += val;
-      if (Number(spotIdx) + (1 % this.width) === 0) {
+      if ((Number(spotIdx) + 1) % this.width === 0) {
         console.log(line);
         line = "";
       }
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public toRaw(): any[] {
+  public toRaw(): RawSpot[] {
     return this._grid.map((s) => s.toRaw());
   }
 
@@ -57,7 +60,6 @@ export default class GridEntity {
   private mapArroundPos(pos: number, fn: (offsetPos: number) => void): void {
     for (let x = -1; x < 2; x++)
       for (let y = -1; y < 2; y++) {
-        // if (Math.abs(x) + Math.abs(y) !== 1) continue;
         const offsetPos = pos + x + y * this.width;
         if (!this._grid[offsetPos]) continue;
         if (
@@ -77,15 +79,20 @@ export default class GridEntity {
   }
 
   private format(spot: spotValueType) {
-    let result = "";
-    switch (spot) {
-      case SPOT.BOMB:
-        result = "B";
-        break;
-      case SPOT.EMPTY:
-        result = "-";
-        break;
-    }
-    return String(result).padEnd(3, " ");
+    return formatSpot(spot).padEnd(3, " ");
   }
+}
+export function formatSpot(spot: spotValueType): string {
+  let result = "";
+  switch (spot) {
+    case SPOT.BOMB:
+      result = "B";
+      break;
+    case SPOT.EMPTY:
+      result = "-";
+      break;
+    default:
+      result = String(spot);
+  }
+  return result;
 }

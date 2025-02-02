@@ -1,18 +1,38 @@
+import { useState } from "react";
 import MakeGrid from "../entities/make-grid";
+import Cell2 from "./Cell2";
 
-const grid = new MakeGrid().setBombs(10).setSize(10, 10).build()._grid;
+const gridEntity = new MakeGrid().setBombs(30).setSize(20, 12).build();
 
 export default function Grid2() {
+  const [grid, setGrid] = useState(gridEntity.toRaw());
+  // const [gameStatus, setGameStatus] = useState<gameStatusType>("PLAY");
+
+  const handleSpotCliked = (pos: number) => () => {
+    gridEntity.propagateVisibility(pos);
+    setGrid([...gridEntity._grid]);
+  };
+
+  const handleFlagged = (pos: number) => () => {
+    gridEntity.toggleFlag(pos);
+    setGrid([...gridEntity._grid]);
+  };
+
   return (
     <section
       className="grid"
       style={{
-        gridTemplateColumns: `repeat(${10},1fr)`,
-        maxWidth: `${50 * 10}px`
+        gridTemplateColumns: `repeat(${gridEntity.width},1fr)`,
+        maxWidth: `${50 * gridEntity.width}px`
       }}
     >
-      {grid.map(() => (
-        <div className="cell"></div>
+      {grid.map((spot, pos) => (
+        <Cell2
+          key={pos}
+          spot={spot}
+          update={handleSpotCliked(pos)}
+          flagger={handleFlagged(pos)}
+        />
       ))}
     </section>
   );

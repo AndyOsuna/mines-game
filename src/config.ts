@@ -1,7 +1,4 @@
-export const SPOT = {
-  EMPTY: 0,
-  BOMB: -1
-};
+export const SPOT = { EMPTY: 0, BOMB: -1 };
 
 export type gameStatusType = "CONFIG" | "PLAY" | "GAMEOVER" | "VICTORY";
 

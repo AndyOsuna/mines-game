@@ -2,8 +2,14 @@ import { HEIGHT, SPOT, WIDTH, nBOMBS, spotValueType } from "../config";
 import { type Properties } from "../utils";
 
 export default class Spot {
-  static createInitialGrid = () => {
-    const array = new Array(WIDTH * HEIGHT).fill(new Spot()) as Spot[];
+  static createInitialGrid = ({
+    w = WIDTH,
+    h = HEIGHT
+  }: {
+    w?: number;
+    h?: number;
+  } = {}) => {
+    const array = new Array(w * h).fill(new Spot()) as Spot[];
 
     for (let i = 0; i < nBOMBS; i++) {
       const randomSpot = Math.floor(Math.random() * array.length);
@@ -64,4 +70,10 @@ export default class Spot {
       flagged: this.flagged
     };
   }
+
+  static fromRaw(s: Properties<Spot>): Spot {
+    return new Spot(s.value, s.visible, s.flagged);
+  }
 }
+
+export type RawSpot = Properties<Spot>;

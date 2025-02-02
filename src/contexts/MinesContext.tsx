@@ -14,8 +14,14 @@ const defaultContext = {} as ContextType;
 
 export const MinesContext = createContext<ContextType>(defaultContext);
 
-export function MinesProvider({ children }: { children: React.ReactNode }) {
-  const [grid, setGrid] = useState<Spot[]>(Spot.createInitialGrid());
+export function MinesProvider({
+  children,
+  initialGrid
+}: {
+  children: React.ReactNode;
+  initialGrid: Spot[];
+}) {
+  const [grid, setGrid] = useState<Spot[]>(initialGrid);
   const [gameStatus, setGameStatus] = useState<gameStatusType>("PLAY");
   const [isFirstMove, setIsFirstMove] = useState(true);
   return (
